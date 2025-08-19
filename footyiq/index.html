@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FootyIQ</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #372538;
+      color: #222;
+    }
+
+    /* Navbar */
+    nav {
+      background: #f7ecec;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(133, 18, 18, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    nav a {
+      margin-left: 1rem;
+      text-decoration: none;
+      color: #333;
+      font-weight: 600;
+    }
+    nav a:hover {
+      color: #007bff;
+    }
+
+    /* Layout Grid */
+    main {
+      display: grid;
+      grid-template-columns: 1fr 2fr 1fr;
+      gap: 1.5rem;
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .card {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      margin-bottom: 1.5rem;
+    }
+
+    h2 {
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    /* News Section */
+    section.news {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    /* Footer */
+    footer {
+      background: #222;
+      color: #ccc;
+      text-align: center;
+      padding: 1rem;
+      margin-top: 2rem;
+    }
+
+    /* Buttons */
+    button {
+      display: block;
+      width: 100%;
+      margin-bottom: 0.5rem;
+      padding: 0.5rem;
+      border: none;
+      border-radius: 6px;
+      background: #f0f0f0;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button:hover {
+      background: #dce8ff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav>
+    <div class="logo">FootyIQ</div>
+    <div class="links">
+      <a href="#">Live Scores</a>
+      <a href="#">Predictions</a>
+      <a href="#">Players</a>
+      <a href="#">News</a>
+    </div>
+  </nav>
+
+  <!-- Main Layout -->
+  <main>
+    <!-- Left Column (Fan Hub) -->
+    <div>
+      <div class="card">
+        <h2>Favorite Team</h2>
+        <p>Arsenal 2 - 1 Chelsea</p>
+        <small>72' Live</small>
+      </div>
+
+      <div class="card">
+        <h2>Man of the Match</h2>
+        <button>Player A</button>
+        <button>Player B</button>
+        <button>Player C</button>
+      </div>
+
+      <div class="card">
+        <h2>Player of the Week</h2>
+        <button>Player X</button>
+        <button>Player Y</button>
+        <button>Player Z</button>
+      </div>
+
+      <div class="card">
+        <h2>Game Prediction</h2>
+        <p>Liverpool vs Man City</p>
+        <button>Liverpool</button>
+        <button>Draw</button>
+        <button>Man City</button>
+      </div>
+    </div>
+
+    <!-- Center Column (Main Feed) -->
+    <div>
+      <div class="card">
+        <h2>Featured Match</h2>
+        <p>Liverpool vs Man City</p>
+        <small>Today 3PM</small>
+      </div>
+
+      <div class="card">
+        <h2>Live Scores</h2>
+        <ul>
+          <li>Barcelona 10 - 0 Real Madrid [HT]</li>
+          <li>PSG 2 - 2 Lyon [80' Live]</li>
+          <li>Juventus vs Milan [12:12]</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>Predictions</h2>
+        <p>Liverpool vs Spurs → Home 55% | Draw 25% | Away 20%</p>
+        <p>Bayern vs Dortmund → Home 40% | Draw 30% | Away 30%</p>
+      </div>
+    </div>
+
+    <!-- Right Column (Highlights) -->
+    <div>
+      <div class="card">
+        <h2>Team of the Week</h2>
+        <p>Formation: 4-3-3</p>
+        <ul>
+          <li>GK: Player 1</li>
+          <li>DEF: Player 2, 3, 4, 5</li>
+          <li>MID: Player 6, 7, 8</li>
+          <li>FWD: Player 9, 10, 11</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>Transfers</h2>
+        <ul>
+          <li>Roony → Barcelona [Confirmed]</li>
+          <li>Kane → Bayern [Rumor]</li>
+          <li>Rashford → Barcelona [Confirmed]</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <!-- News Section -->
+  <section class="news">
+    <h2>Latest News</h2>
+    <div class="news-grid">
+      <div class="card">Article 1</div>
+      <div class="card">Article 2</div>
+      <div class="card">Article 3</div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2025 FoootyIQ | All Rights Reserved</p>
+  </footer>
+
+</body>
+</html>
