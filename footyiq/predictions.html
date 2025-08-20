@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FootyIQ Predictions</title>
+  <style>
+    :root{
+      /* Layout clamps */
+      --page-max: 1400px;   /* wider so less side space */
+      --gutter: 16px;
+
+      /* Theme */
+      --bg:#f4f4f6; --ink:#222; --muted:#555;
+      --card:#fff; --brand:#0b62ff; --ring:rgba(11,98,255,.18);
+
+      /* Cards & carousel */
+      --cardw: 280px;       /* width of each match card */
+      --gap: 16px;          /* space between cards */
+      --cards-visible: 3;   /* show exactly 3 on desktop */
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0; padding:0; background:var(--bg); color:var(--ink);}
+
+    /* Centered container with max width */
+    .container{
+      width: min(var(--page-max), calc(100% - 2*var(--gutter)));
+      margin-inline:auto;
+    }
+
+    /* Top bar */
+    nav{
+      position:sticky; top:0; z-index:50;
+      background:#fff; box-shadow:0 2px 10px rgba(0,0,0,.06);
+    }
+    .nav-inner{
+      height: 56px;
+      display:flex; align-items:center; gap:12px;
+      padding-inline: var(--gutter);
+    }
+    .logo a{
+      font-weight:900; font-size:22px; letter-spacing:.2px;
+      color:var(--brand); text-decoration:none;
+      transition:text-shadow .2s,color .2s;
+    }
+    .logo a:hover{ text-shadow:0 0 10px var(--ring); }
+    .crumb{ font-weight:700; color:#444; user-select:none; }
+
+    /* Page layout (left content + sticky leaderboard) */
+    main.container{
+      margin-top:22px; margin-bottom:24px;
+      display:grid; gap:24px;
+      grid-template-columns: minmax(0,1fr) 360px; /* narrower sidebar to give carousels more room */
+    }
+
+    /* League section — extra spacing */
+    section.league{ margin-bottom:56px; }
+    .league h2{ margin:0 0 16px 6px; font-size:20px; }
+
+    /* CAROUSEL: arrows-only, auto-glide, hidden scrollbar */
+    .carousel{
+      position:relative; display:flex; align-items:center; gap:10px;
+    }
+    .viewport{
+      /* allow JS scroll; hide bar cross-browser */
+      overflow: auto;
+      scrollbar-width: none;         /* Firefox */
+      -ms-overflow-style: none;      /* IE/Edge legacy */
+      max-width: calc(var(--cardw) * var(--cards-visible) + var(--gap) * (var(--cards-visible) - 1));
+      margin-inline:auto;            /* center the 3 visible cards */
+      scroll-behavior: auto;         /* JS controls easing */
+    }
+    .viewport::-webkit-scrollbar{ display:none; } /* Chrome/Safari/Edge */
+
+    .carousel-track{
+      display:flex; gap:var(--gap);
+      will-change: scroll-position;
+    }
+    .arrow{
+      flex:0 0 auto;
+      width:38px; height:38px; border:none; border-radius:999px;
+      background:#111; color:#fff; font-size:20px; cursor:pointer;
+      display:grid; place-items:center;
+      box-shadow:0 6px 14px rgba(0,0,0,.18);
+      transition:transform .15s, background .15s, opacity .2s;
+      opacity:.95;
+    }
+    .arrow:hover{ transform:scale(1.06); background:#000; }
+    .arrow:disabled{ opacity:.35; cursor:not-allowed; transform:none; }
+
+    /* Match card */
+    .card{
+      flex:0 0 var(--cardw);
+      background:var(--card); border-radius:14px; padding:14px;
+      box-shadow:0 6px 16px rgba(0,0,0,.08);
+      display:flex; flex-direction:column; align-items:center;
+      transition:transform .15s, box-shadow .15s;
+    }
+    .card:hover{ transform:translateY(-3px); box-shadow:0 10px 22px rgba(0,0,0,.12); }
+    .match{ font-weight:800; text-align:center; margin-bottom:8px; }
+    .footyiq{
+      background:#eef4ff; border:1px solid #dfe8ff; border-radius:8px;
+      padding:6px 10px; font-size:13px; font-weight:700; margin-bottom:10px;
+      text-align:center; width:100%;
+    }
+    .vote{
+      width:100%; display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+      margin-top:auto;
+    }
+    .vote button{
+      border:none; border-radius:8px; padding:8px 6px; cursor:pointer;
+      background:#f1f3f5; font-weight:700; transition:.15s;
+    }
+    .vote button:hover{ background:#e6efff; box-shadow:0 0 0 3px var(--ring) inset; color:#0a46bf; }
+
+    /* Leaderboard (bigger + sticky) */
+    aside.leaderboard{
+      position:sticky; top:80px;
+      background:#fff; border-radius:16px; padding:18px 16px;
+      box-shadow:0 10px 24px rgba(0,0,0,.10);
+      height:fit-content;
+    }
+    .leaderboard h3{ margin:0 0 12px; font-size:24px; }
+    .last-updated{ color:#6b7280; font-size:12px; margin-bottom:14px; }
+    .board{ list-style:none; padding:0; margin:0; display:grid; gap:10px; }
+    .row{
+      display:flex; align-items:center; gap:10px;
+      background:#fafbfc; border-radius:10px; padding:10px 12px;
+    }
+    .rank{
+      width:34px; height:34px; border-radius:50%; display:grid; place-items:center;
+      font-weight:900; background:#eef1ff; color:#1d2b6f;
+    }
+    .name{ font-weight:800; flex:1; }
+    .pts{ font-weight:900; color:#394150; }
+
+    /* Responsive: keep 3 on laptops, 2 on tablets, 1 on phones */
+    @media (max-width: 1200px){ :root{ --cards-visible: 3; } }
+    @media (max-width: 980px){
+      main.container{ grid-template-columns: 1fr; }
+      aside.leaderboard{ position:static; margin-top:8px; }
+      :root{ --cards-visible: 2; }
+    }
+    @media (max-width: 700px){ :root{ --cards-visible: 1; } }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <nav>
+    <div class="container nav-inner">
+      <div class="logo"><a href="index.html">FootyIQ</a></div>
+      <div class="crumb">Predictions</div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <!-- LEFT: All leagues as carousels -->
+    <div id="content">
+
+      <section class="league" id="premier-league">
+        <h2>Premier League</h2>
+        <div class="carousel">
+          <button class="arrow prev" aria-label="Previous">‹</button>
+          <div class="viewport"><div class="carousel-track"></div></div>
+          <button class="arrow next" aria-label="Next">›</button>
+        </div>
+      </section>
+
+      <section class="league" id="la-liga">
+        <h2>La Liga</h2>
+        <div class="carousel">
+          <button class="arrow prev" aria-label="Previous">‹</button>
+          <div class="viewport"><div class="carousel-track"></div></div>
+          <button class="arrow next" aria-label="Next">›</button>
+        </div>
+      </section>
+
+      <section class="league" id="serie-a">
+        <h2>Serie A</h2>
+        <div class="carousel">
+          <button class="arrow prev" aria-label="Previous">‹</button>
+          <div class="viewport"><div class="carousel-track"></div></div>
+          <button class="arrow next" aria-label="Next">›</button>
+        </div>
+      </section>
+
+      <section class="league" id="bundesliga">
+        <h2>Bundesliga</h2>
+        <div class="carousel">
+          <button class="arrow prev" aria-label="Previous">‹</button>
+          <div class="viewport"><div class="carousel-track"></div></div>
+          <button class="arrow next" aria-label="Next">›</button>
+        </div>
+      </section>
+
+      <section class="league" id="ligue-1">
+        <h2>Ligue 1</h2>
+        <div class="carousel">
+          <button class="arrow prev" aria-label="Previous">‹</button>
+          <div class="viewport"><div class="carousel-track"></div></div>
+          <button class="arrow next" aria-label="Next">›</button>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- RIGHT: Bigger sticky leaderboard -->
+    <aside class="leaderboard">
+      <h3>Leaderboard</h3>
+      <div class="last-updated" id="lastUpdated">Loading…</div>
+      <ol class="board" id="board">
+        <li class="row"><div class="rank">1</div><div class="name">User123</div><div class="pts">152 pts</div></li>
+        <li class="row"><div class="rank">2</div><div class="name">ProTipster</div><div class="pts">148 pts</div></li>
+        <li class="row"><div class="rank">3</div><div class="name">BallGuru</div><div class="pts">141 pts</div></li>
+        <li class="row"><div class="rank">4</div><div class="name">StatsNerd</div><div class="pts">137 pts</div></li>
+        <li class="row"><div class="rank">5</div><div class="name">FootyFan</div><div class="pts">129 pts</div></li>
+        <li class="row"><div class="rank">6</div><div class="name">ThePundit</div><div class="pts">121 pts</div></li>
+        <li class="row"><div class="rank">7</div><div class="name">GoalKing</div><div class="pts">118 pts</div></li>
+        <li class="row"><div class="rank">8</div><div class="name">xGWizard</div><div class="pts">112 pts</div></li>
+        <li class="row"><div class="rank">9</div><div class="name">CleanSheet</div><div class="pts">109 pts</div></li>
+        <li class="row"><div class="rank">10</div><div class="name">Underdog</div><div class="pts">104 pts</div></li>
+      </ol>
+    </aside>
+  </main>
+
+  <script>
+    /* -------- DEMO DATA (fallback if predictions.json can't be loaded) -------- */
+    const DEFAULT_DATA = {
+      generated_at: new Date().toISOString(),
+      leagues: {
+        premier_league: [
+          { id:"epl-001", home:"Liverpool", away:"Man City", probs:{home:0.55, draw:0.25, away:0.20} },
+          { id:"epl-002", home:"Arsenal",  away:"Chelsea",  probs:{home:0.32, draw:0.40, away:0.28} },
+          { id:"epl-003", home:"Spurs",    away:"Newcastle",probs:{home:0.46, draw:0.29, away:0.25} },
+          { id:"epl-004", home:"Brighton", away:"Aston Villa", probs:{home:0.41, draw:0.31, away:0.28} },
+          { id:"epl-005", home:"Palace", away:"Brentford", probs:{home:0.39, draw:0.36, away:0.25} }
+        ],
+        la_liga: [
+          { id:"lal-001", home:"Barcelona", away:"Real Madrid", probs:{home:0.36, draw:0.13, away:0.51} },
+          { id:"lal-002", home:"Atlético",  away:"Sevilla",     probs:{home:0.57, draw:0.24, away:0.19} },
+          { id:"lal-003", home:"Sociedad",  away:"Villarreal",  probs:{home:0.48, draw:0.30, away:0.22} }
+        ],
+        serie_a: [
+          { id:"sa-001", home:"Inter",   away:"AC Milan", probs:{home:0.52, draw:0.26, away:0.22} },
+          { id:"sa-002", home:"Juventus",away:"Roma",     probs:{home:0.49, draw:0.28, away:0.23} },
+          { id:"sa-003", home:"Napoli",  away:"Lazio",    probs:{home:0.55, draw:0.23, away:0.22} }
+        ],
+        bundesliga: [
+          { id:"bun-001", home:"Bayern",   away:"Dortmund",  probs:{home:0.60, draw:0.21, away:0.19} },
+          { id:"bun-002", home:"Leipzig",  away:"Leverkusen",probs:{home:0.34, draw:0.14, away:0.52} },
+          { id:"bun-003", home:"Stuttgart",away:"Frankfurt", probs:{home:0.55, draw:0.24, away:0.21} }
+        ],
+        ligue_1: [
+          { id:"l1-001", home:"PSG", away:"Lyon", probs:{home:0.70, draw:0.18, away:0.12} },
+          { id:"l1-002", home:"Lille", away:"Rennes", probs:{home:0.39, draw:0.37, away:0.24} },
+          { id:"l1-003", home:"Nice", away:"Lens", probs:{home:0.47, draw:0.34, away:0.19} }
+        ]
+      }
+    };
+
+    // Map leagues to their track container
+    const TARGETS = {
+      premier_league: '#premier-league .carousel-track',
+      la_liga:       '#la-liga .carousel-track',
+      serie_a:       '#serie-a .carousel-track',
+      bundesliga:    '#bundesliga .carousel-track',
+      ligue_1:       '#ligue-1 .carousel-track'
+    };
+
+    const abbr = name => name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,3);
+
+    function mkCard(m){
+      const ph = Math.round(m.probs.home*100);
+      const pd = Math.round(m.probs.draw*100);
+      const pa = Math.round(m.probs.away*100);
+      return `
+        <div class="card" data-id="${m.id}">
+          <div class="match">${m.home} vs ${m.away}</div>
+          <div class="footyiq">FootyIQ: Home ${ph}% • Draw ${pd}% • Away ${pa}%</div>
+          <div class="vote">
+            <button title="${m.home}">${abbr(m.home)}</button>
+            <button>Draw</button>
+            <button title="${m.away}">${abbr(m.away)}</button>
+          </div>
+        </div>`;
+    }
+
+    async function loadPredictions(){
+      let data;
+      try{
+        const res = await fetch('predictions.json', { cache:'no-store' });
+        if(!res.ok) throw new Error('HTTP '+res.status);
+        data = await res.json();
+      }catch(err){
+        console.warn('Using fallback data. Reason:', err.message || err);
+        data = DEFAULT_DATA;
+        const lu = document.querySelector('#lastUpdated');
+        if(lu) lu.textContent = 'Using demo data (predictions.json not found / blocked).';
+      }
+
+      const lu = document.querySelector('#lastUpdated');
+      if(lu && data.generated_at){
+        lu.textContent = 'Updated: ' + new Date(data.generated_at).toLocaleString();
+      }
+
+      // Render leagues
+      Object.entries(TARGETS).forEach(([key, sel])=>{
+        const track = document.querySelector(sel);
+        if(!track) return;
+        track.innerHTML = '';
+        (data.leagues[key] || []).forEach(m => track.insertAdjacentHTML('beforeend', mkCard(m)));
+      });
+
+      bindVoting();
+      bindCarousels();   // includes auto-glide + slow-on-hover
+    }
+
+    // Vote highlight (front-end only)
+    function bindVoting(){
+      document.querySelectorAll('.vote').forEach(v=>{
+        if(v.dataset.bound) return; v.dataset.bound = '1';
+        v.addEventListener('click', (e)=>{
+          if(e.target.tagName !== 'BUTTON') return;
+          v.querySelectorAll('button').forEach(b=>{
+            b.style.background='#f1f3f5'; b.style.color='inherit'; b.style.boxShadow='none';
+          });
+          const btn = e.target;
+          btn.style.background='#e6efff';
+          btn.style.color='#0a46bf';
+          btn.style.boxShadow='0 0 0 3px rgba(11,98,255,.2) inset';
+        });
+      });
+    }
+
+    // Carousel: arrows + auto-glide + slow on hover
+    function bindCarousels(){
+      document.querySelectorAll('.carousel').forEach(carousel=>{
+        if(carousel.dataset.bound) return; carousel.dataset.bound = '1';
+
+        const viewport = carousel.querySelector('.viewport');
+        const track    = carousel.querySelector('.carousel-track');
+        const prev     = carousel.querySelector('.prev');
+        const next     = carousel.querySelector('.next');
+
+        // ---- Arrow logic (page by page) ----
+        function updateArrows(){
+          const atStart = viewport.scrollLeft <= 0;
+          const maxScroll = Math.max(0, track.scrollWidth - viewport.clientWidth - 1);
+          const atEnd = viewport.scrollLeft >= maxScroll;
+          prev.disabled = atStart;
+          next.disabled = atEnd;
+        }
+        function scrollByPage(dir){
+          pauseAuto(1200); // brief pause after user click
+          viewport.scrollBy({ left: dir * Math.max(viewport.clientWidth * 0.98, 1), behavior: 'smooth' });
+        }
+        prev.addEventListener('click', ()=> scrollByPage(-1));
+        next.addEventListener('click', ()=> scrollByPage( 1));
+        viewport.addEventListener('scroll', updateArrows);
+        window.addEventListener('resize', updateArrows);
+        updateArrows();
+
+        // ---- Auto-glide (Apple-like) ----
+        const canScroll = track.scrollWidth > viewport.clientWidth + 1;
+        if (!canScroll) {            // nothing to scroll → hide arrows and skip auto
+          prev.style.display = 'none';
+          next.style.display = 'none';
+          return;
+        }
+
+        let dir = 1;                       // 1 = right, -1 = left
+        const baseSpeed = 0.14;            // px per ms (~140 px/s) -> visible motion
+        const slowFactor = 0.20;           // on hover, speed = baseSpeed * slowFactor
+        let speed = baseSpeed;             // current speed
+        let last = performance.now();
+        let rafId = 0;
+        let pausedUntil = 0;
+
+        function tick(now){
+          const dt = now - last; last = now;
+
+          if (now >= pausedUntil){
+            const maxScroll = Math.max(0, track.scrollWidth - viewport.clientWidth);
+            let s = viewport.scrollLeft + dir * speed * dt;
+
+            if (s <= 0){ s = 0; dir = 1; }
+            else if (s >= maxScroll){ s = maxScroll; dir = -1; }
+
+            viewport.scrollLeft = s;
+            updateArrows();
+          }
+          rafId = requestAnimationFrame(tick);
+        }
+
+        function pauseAuto(ms){ pausedUntil = performance.now() + (ms || 0); }
+        function setHoverState(h){ speed = baseSpeed * (h ? slowFactor : 1); }
+
+        // Slow on hover over the whole carousel (cards included)
+        carousel.addEventListener('mouseenter', ()=> setHoverState(true));
+        carousel.addEventListener('mouseleave', ()=> setHoverState(false));
+
+        // Brief pause after touch/arrow click
+        carousel.addEventListener('touchstart', ()=> pauseAuto(1200), {passive:true});
+
+        // Pause when tab hidden, resume when visible
+        document.addEventListener('visibilitychange', ()=>{
+          if(document.hidden){ cancelAnimationFrame(rafId); }
+          else { last = performance.now(); rafId = requestAnimationFrame(tick); }
+        });
+
+        // start
+        last = performance.now();
+        rafId = requestAnimationFrame(tick);
+      });
+    }
+
+    loadPredictions();
+    // setInterval(loadPredictions, 5 * 60 * 1000); // enable if you want auto-refresh
+  </script>
+</body>
+</html>

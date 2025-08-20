@@ -54,7 +54,7 @@
 
     h2 {
       margin-bottom: 0.5rem;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
     }
 
     /* News Section */
@@ -78,20 +78,18 @@
       margin-top: 2rem;
     }
 
-    /* Buttons */
-    button {
-      display: block;
-      width: 100%;
-      margin-bottom: 0.5rem;
-      padding: 0.5rem;
-      border: none;
-      border-radius: 6px;
-      background: #f0f0f0;
-      cursor: pointer;
-      font-weight: 600;
+    /* Bigger Live Scores */
+    .live-scores {
+      font-size: 1.3rem;
+      line-height: 2rem;
+      background: #e0ecf7;
+      border-left: 5px solid #265f9c;
+      padding: 1rem;
     }
-    button:hover {
-      background: #dce8ff;
+
+    .live-scores li {
+      margin: 0.5rem 0;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -102,7 +100,7 @@
     <div class="logo">FootyIQ</div>
     <div class="links">
       <a href="#">Live Scores</a>
-      <a href="#">Predictions</a>
+      <a href="predictions.html">Predictions</a>
       <a href="#">Players</a>
       <a href="#">News</a>
     </div>
@@ -131,14 +129,6 @@
         <button>Player Y</button>
         <button>Player Z</button>
       </div>
-
-      <div class="card">
-        <h2>Game Prediction</h2>
-        <p>Liverpool vs Man City</p>
-        <button>Liverpool</button>
-        <button>Draw</button>
-        <button>Man City</button>
-      </div>
     </div>
 
     <!-- Center Column (Main Feed) -->
@@ -149,19 +139,13 @@
         <small>Today 3PM</small>
       </div>
 
-      <div class="card">
+      <div class="card live-scores">
         <h2>Live Scores</h2>
         <ul>
           <li>Barcelona 10 - 0 Real Madrid [HT]</li>
           <li>PSG 2 - 2 Lyon [80' Live]</li>
           <li>Juventus vs Milan [12:12]</li>
         </ul>
-      </div>
-
-      <div class="card">
-        <h2>Predictions</h2>
-        <p>Liverpool vs Spurs → Home 55% | Draw 25% | Away 20%</p>
-        <p>Bayern vs Dortmund → Home 40% | Draw 30% | Away 30%</p>
       </div>
     </div>
 
@@ -201,7 +185,7 @@
 
   <!-- Footer -->
   <footer>
-    <p>© 2025 FoootyIQ | All Rights Reserved</p>
+    <p>© 2025 FootyIQ | All Rights Reserved</p>
   </footer>
 
 </body>
