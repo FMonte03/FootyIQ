@@ -1,0 +1,25 @@
+{
+  "generated_at": "2025-08-19T12:00:00Z",
+  "leagues": {
+    "premier_league": [
+      {
+        "id": "epl-001",
+        "home": "Liverpool",
+        "away": "Man City",
+        "kickoff_iso": "2025-08-22T14:00:00Z",
+        "probs": { "home": 0.55, "draw": 0.25, "away": 0.20 }
+      },
+      {
+        "id": "epl-002",
+        "home": "Arsenal",
+        "away": "Chelsea",
+        "kickoff_iso": "2025-08-22T16:30:00Z",
+        "probs": { "home": 0.32, "draw": 0.40, "away": 0.28 }
+      }
+    ],
+    "la_liga": [],
+    "serie_a": [],
+    "bundesliga": [],
+    "ligue_1": []
+  }
+}
